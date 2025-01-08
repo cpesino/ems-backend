@@ -2,12 +2,16 @@ package com.devchrd.ems.service.impl;
 
 import com.devchrd.ems.dto.EmployeeDto;
 import com.devchrd.ems.entity.Employee;
+import com.devchrd.ems.exception.ResourceNotFoundException;
 import com.devchrd.ems.mapper.EmployeeMapper;
 import com.devchrd.ems.repository.EmployeeRepository;
 import com.devchrd.ems.service.EmployeeService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -27,6 +31,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeDto getEmployeeById(Long employeeId) {
-        return null;
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Employee does not exist with given ID: " + employeeId));
+        return EmployeeMapper.mapToEmployeeDto(employee);
+    }
+
+    @Override
+    public List<EmployeeDto> getAllEmployees() {
+        List<Employee> employees = employeeRepository.findAll();
+        return employees.stream().map((EmployeeMapper::mapToEmployeeDto)).collect(Collectors.toList());
     }
 }
